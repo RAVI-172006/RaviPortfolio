@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ravi Krishna S | Cyber-Portfolio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Space+Grotesk:wght@300;500;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        :root {
+            --bg: #010101;
+            --accent: #00f2ff;
+            --accent-dim: rgba(0, 242, 255, 0.15);
+            --text-main: #ffffff;
+            --text-dim: #999999;
+            --glass: rgba(255, 255, 255, 0.03);
+            --card-border: rgba(0, 242, 255, 0.2);
+        }
+
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Space Grotesk', sans-serif;
+            overflow-x: hidden;
+            line-height: 1.4;
+            cursor: default;
+        }
+
+        /* --- Desktop Only Cursor --- */
+        @media (min-width: 1024px) {
+            * { cursor: none; }
+            #cursor, #cursor-follower { display: block; }
+        }
+        
+        #cursor, #cursor-follower {
+            display: none;
+            position: fixed; pointer-events: none;
+            z-index: 10000;
+        }
+        #cursor { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; mix-blend-mode: difference; }
+        #cursor-follower { width: 40px; height: 40px; border: 1px solid var(--accent); border-radius: 50%; transition: 0.1s ease-out; }
+
+        /* --- Background Layers --- */
+        #floating-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; pointer-events: none; overflow: hidden;
+        }
+
+        .floating-element, .floating-dot {
+            position: absolute; user-select: none; will-change: transform, opacity;
+        }
+        .floating-element { filter: drop-shadow(0 0 10px currentColor); }
+        .floating-dot { background: var(--accent); border-radius: 50%; box-shadow: 0 0 8px var(--accent); }
+
+        #canvas-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -2; opacity: 0.15;
+        }
+
+        /* --- Navigation --- */
+        nav {
+            position: fixed; top: 0; width: 100%; padding: 1rem 5%;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 1000; backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .nav-logo { font-family: 'Syncopate', sans-serif; font-weight: 700; color: var(--accent); letter-spacing: 2px; font-size: 0.7rem; }
+        .nav-links { display: none; } /* Simplified for mobile */
+
+        @media (min-width: 900px) {
+            .nav-links { display: flex; gap: 2rem; }
+            .nav-links a { text-decoration: none; color: var(--text-main); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; transition: 0.3s; }
+            .nav-links a:hover { color: var(--accent); }
+            .nav-logo { font-size: 0.9rem; letter-spacing: 5px; }
+        }
+
+        /* --- Sections --- */
+        section { padding: 80px 6%; }
+
+        /* --- Hero --- */
+        .hero {
+            height: 100vh; display: flex; flex-direction: column;
+            justify-content: center; align-items: flex-start;
+        }
+
+        .hero span { 
+            color: var(--accent); font-family: 'JetBrains Mono'; font-size: 0.7rem; 
+            margin-bottom: 0.8rem; letter-spacing: 2px; 
+            border: 1px solid var(--accent-dim); padding: 4px 8px; background: rgba(0,0,0,0.5);
+        }
+        
+        .hero h1 { 
+            font-family: 'Syncopate', sans-serif; font-size: clamp(2rem, 10vw, 5rem); 
+            line-height: 1.1; margin-bottom: 1.5rem; 
+        }
+
+        .hero p { 
+            color: #ccc; max-width: 500px; font-size: 1rem; 
+            background: rgba(0,0,0,0.6); padding: 12px; border-radius: 4px; 
+        }
+
+        .contact-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 2rem; width: 100%; }
+        .btn-main {
+            flex: 1; min-width: 140px; justify-content: center;
+            padding: 14px 20px; border: 1px solid var(--accent);
+            color: var(--accent); text-decoration: none; font-weight: bold; font-size: 0.7rem;
+            text-transform: uppercase; background: rgba(0, 0, 0, 0.8); 
+            display: flex; align-items: center; gap: 8px; backdrop-filter: blur(5px);
+        }
+
+        /* --- Bento Grid --- */
+        .section-title { font-family: 'Syncopate'; font-size: 1.1rem; margin-bottom: 2.5rem; color: var(--accent); display: flex; align-items: center; gap: 15px; }
+        .section-title::after { content: ""; height: 1px; flex-grow: 1; background: var(--card-border); }
+
+        .project-grid {
+            display: grid; grid-template-columns: repeat(12, 1fr); gap: 15px;
+        }
+
+        .card {
+            grid-column: span 12; /* Default Mobile Stacking */
+            background: rgba(5, 5, 5, 0.8); border: 1px solid var(--card-border);
+            padding: 1.5rem; transition: 0.4s; position: relative; backdrop-filter: blur(10px);
+        }
+
+        @media (min-width: 900px) {
+            .card.p-big { grid-column: span 8; }
+            .card.p-med { grid-column: span 4; }
+            section { padding: 100px 10%; }
+        }
+
+        .card h3 { color: var(--accent); margin-bottom: 0.8rem; font-family: 'Syncopate'; font-size: 1rem; }
+        .card p { color: #ccc; font-size: 0.85rem; margin-bottom: 1.2rem; font-weight: 300; }
+        .tech-stack { font-family: 'JetBrains Mono'; font-size: 0.65rem; color: var(--accent); font-weight: bold; }
+
+        /* --- Terminal --- */
+        .terminal {
+            background: #000; border: 1px solid #333; padding: 20px;
+            font-family: 'JetBrains Mono', monospace; overflow-x: auto;
+        }
+        .term-header { display: flex; gap: 8px; margin-bottom: 15px; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; background: #222; }
+        .code-line { margin-bottom: 8px; font-size: 0.8rem; white-space: nowrap; }
+        .keyword { color: var(--accent); }
+
+        /* --- Footer --- */
+        footer { padding: 60px 6%; text-align: center; border-top: 1px solid var(--card-border); background: #000; }
+        footer p:first-child { letter-spacing: 5px; color: var(--accent); font-weight: 700; font-size: 0.8rem; }
+        footer p:last-child { font-size: 0.6rem; color: #555; margin-top: 15px; text-transform: uppercase; }
+
+    </style>
+</head>
+<body>
+
+    <div id="cursor"></div>
+    <div id="cursor-follower"></div>
+    <div id="floating-container"></div>
+    <canvas id="canvas-bg"></canvas>
+
+    <nav>
+        <div class="nav-logo">RAVI KRISHNA S</div>
+        <div class="nav-links">
+            <a href="#projects">Work</a>
+            <a href="#about">Experience</a>
+            <a href="#skills">Systems</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <span>&lt;HELLO_WORLD&gt;</span>
+        <h1>RAVI <br>KRISHNA S</h1>
+        <p>
+            <b style="color: var(--accent);">CSBS Engineer.</b><br>
+            Focused on Python automation, Core Java development, and building scalable full‑stack web architectures.
+        </p>
+        
+        <div class="contact-row">
+            <a href="mailto:ravikrishnas2006@gmail.com" class="btn-main"><i class="fas fa-envelope"></i> Email</a>
+            <a href="https://github.com/RAVI-172006" target="_blank" class="btn-main"><i class="fab fa-github"></i> GitHub</a>
+            <a href="https://www.linkedin.com/in/ravi-krishna-s-985952331" target="_blank" class="btn-main"><i class="fab fa-linkedin"></i> LinkedIn</a>
+        </div>
+    </section>
+
+    <section id="projects">
+        <h2 class="section-title">01_PROJECTS</h2>
+        <div class="project-grid">
+            <div class="card p-big">
+                <h3>Web Scraper</h3>
+                <p>A scalable web scraper that automates data collection, handles dynamic content, and structures raw information into clean, usable formats for research, analytics, and automation workflows.
+</p>
+                <div class="tech-stack">PYTHON • BEAUTIFULSOUP • REQUESTS • PANDAS • SELENIUM • SQLITE • MYSQL</div>
+            </div>
+            <div class="card p-med">
+                <h3>AI Image Generator</h3>
+                <p>An AI-powered image generator that transforms text prompts into vivid,  visuals with customizable themes, and seamless integration of machine learning models and modern web technologies.</p>
+                <div class="tech-stack">PYTHON • TRANSFORMERS • DIFFUSERS • FLASK • PYTORCH • DIANGO • JAVASCRIPT • HTML • CSS • REACT • REST APIs</div>
+            </div>
+            <div class="card p-full">
+                <h3>Code Editor</h3>
+                <p>A browser-based code editor that supports split layouts, smooth resizing, custom color themes, and active section highlighting to provide an intuitive and polished user experience.</p>
+                <div class="tech-stack">JAVASCRIPT • MONACO • HTML • CSS • REACT • CODEMIRROR  </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="about">
+        <h2 class="section-title">02_EXPERIENCE</h2>
+        <div class="project-grid">
+            <div class="card p-full">
+                <span style="color: var(--accent); font-family: 'JetBrains Mono'; font-size: 0.7rem; border: 1px solid var(--accent); padding: 2px 6px; margin-bottom: 10px; display: inline-block;">NOV 2024 — DEC 2024</span>
+                <h4>Web Dev Intern @ INTERNPE</h4>
+                <p>Responsive UI engineering and modular component architecture.</p>
+            </div>
+            <div class="card p-full">
+                <h2 class="section-title" style="margin-bottom:1rem; border:none; padding:0;">03_EDUCATION</h2>
+                <span style="color: var(--accent); font-family: 'JetBrains Mono'; font-size: 0.7rem; border: 1px solid var(--accent); padding: 2px 6px; margin-bottom: 10px; display: inline-block;">2023 — 2027</span>
+                <h4>B.Tech CSBS</h4>
+                <p>Panimalar Engineering College • Computer Science & Business Systems</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="skills">
+        <h2 class="section-title">04_SYSTEMS</h2>
+        <div class="terminal">
+            <div class="term-header"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+            <div class="code-line"><span class="keyword">let</span> profile = {</div>
+            <div class="code-line" style="padding-left: 20px;">languages: [<span style="color:#ce9178">'Java', 'Python', 'SQL'</span>],</div>
+            <div class="code-line" style="padding-left: 20px;">tools: [<span style="color:#ce9178">'Git', 'GitHub', 'Linux'</span>],</div>
+            <div class="code-line" style="padding-left: 20px;">certs: [<span style="color:#ce9178">'NASSCOM', 'Infosys', 'NPTEL'</span>]</div>
+            <div class="code-line">};</div>
+        </div>
+    </section>
+
+    <footer>
+        <p>RAVI KRISHNA S</p>
+        <p>+91 9524506848 • Chennai, India • 2026</p>
+    </footer>
+
+    <script>
+        // --- Cursor Logic (Desktop Only) ---
+        const cursor = document.getElementById('cursor');
+        const follower = document.getElementById('cursor-follower');
+        if (window.innerWidth > 1024) {
+            document.addEventListener('mousemove', (e) => {
+                cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px';
+                follower.style.left = e.clientX - 20 + 'px'; follower.style.top = e.clientY - 20 + 'px';
+            });
+        }
+
+        // --- Data Stream Logic ---
+        const container = document.getElementById('floating-container');
+        const techAssets = [
+            { icon: '<i class="fab fa-python"></i>', color: '#3776AB' }, 
+            { icon: '<i class="fab fa-java"></i>', color: '#f89820' },   
+            { icon: '<i class="fas fa-database"></i>', color: '#00758F' }, 
+            { icon: '<i class="fab fa-github"></i>', color: '#ffffff' }, 
+            { icon: '<i class="fab fa-git-alt"></i>', color: '#F05032' }, 
+            { icon: '<i class="fab fa-js-square"></i>', color: '#F7DF1E' }
+        ];
+
+        function spawnData() {
+            const isLogo = Math.random() > 0.7;
+            const el = document.createElement('div');
+            const startX = Math.random() * window.innerWidth;
+            const duration = Math.random() * 8 + 10;
+
+            if (isLogo) {
+                el.className = 'floating-element';
+                const asset = techAssets[Math.floor(Math.random() * techAssets.length)];
+                el.innerHTML = asset.icon;
+                el.style.color = asset.color;
+                el.style.fontSize = (Math.random() * 1.5 + 1.5) + 'rem';
+                el.style.opacity = Math.random() * 0.2 + 0.1;
+            } else {
+                el.className = 'floating-dot';
+                const size = Math.random() * 4 + 2;
+                el.style.width = size + 'px'; el.style.height = size + 'px';
+                el.style.opacity = Math.random() * 0.4 + 0.2;
+            }
+
+            el.style.left = startX + 'px';
+            el.style.bottom = '-100px';
+            container.appendChild(el);
+
+            el.animate([
+                { transform: 'translateY(0) rotate(0deg)' },
+                { transform: `translateY(-${window.innerHeight + 200}px) rotate(360deg)` }
+            ], { duration: duration * 1000, easing: 'linear' }).onfinish = () => el.remove();
+        }
+
+        // Optimized spawn rate for mobile performance
+        const spawnInterval = window.innerWidth < 768 ? 600 : 300;
+        setInterval(spawnData, spawnInterval);
+
+        // --- Grid Logic ---
+        const canvas = document.getElementById('canvas-bg');
+        const ctx = canvas.getContext('2d');
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; drawGrid(); }
+        function drawGrid() {
+            ctx.clearRect(0,0,canvas.width, canvas.height);
+            ctx.strokeStyle = 'rgba(0, 242, 255, 0.1)'; ctx.lineWidth = 0.5;
+            const step = window.innerWidth < 768 ? 40 : 60;
+            for(let x=0; x<canvas.width; x+=step) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,canvas.height); ctx.stroke(); }
+            for(let y=0; y<canvas.height; y+=step) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width,y); ctx.stroke(); }
+        }
+        window.addEventListener('resize', resize);
+        resize();
+    </script>
+</body>
+</html>
